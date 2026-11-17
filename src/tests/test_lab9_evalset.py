@@ -70,3 +70,13 @@ def test_check_rejects_missing_trace_provenance(evalset_cli, tmp_path):
     result = evalset_cli("--check")
     assert result.returncode == 1, result.stdout + result.stderr
     assert "trace provenance not found" in result.stdout
+
+
+def test_eval_set_sha_is_independent_of_line_endings(tmp_path):
+    from lab9.evalset import sha12
+
+    lf = tmp_path / "eval_lf.jsonl"
+    crlf = tmp_path / "eval_crlf.jsonl"
+    lf.write_bytes(b'{"item_id":"E-001"}\n{"item_id":"E-002"}\n')
+    crlf.write_bytes(b'{"item_id":"E-001"}\r\n{"item_id":"E-002"}\r\n')
+    assert sha12(lf) == sha12(crlf)

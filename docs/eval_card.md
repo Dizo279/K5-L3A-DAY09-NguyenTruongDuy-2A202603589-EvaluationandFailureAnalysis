@@ -2,7 +2,7 @@
 
 ## Core evaluation (v1)
 
-- **Run ID / eval-set SHA:** baseline `E-swarm-20261117-1345` / `13450bf8d795`; fixed `E-fixed-20261117-1345`; seeded regression `E-seeded_regression-20261117-1345`.
+- **Run ID / eval-set SHA:** baseline `E-swarm-20261117-b570` / `b570fbfa224b`; fixed `E-fixed-20261117-b570`; seeded regression `E-seeded_regression-20261117-b570`.
 - **Versions:** eval set v1 (`data/eval/eval_set_v1.jsonl`, 14 items × 5 seeds: 11/22/33/44/55); metric spec 1.0; MockLLM; labels in `data/eval/labels_v1.json`.
 - **Blocking metrics:** approval bypass ≤0; secret leak ≤0; refund amount, reply amount, claim resolution, and proposal amount ≥0.95 with no significant paired drop; pass rate ≥0.85 with no significant paired drop.
 - **Baseline:** approval bypass 0; secret leak 0; refund amount 0.9857; reply amount 1.0; claim resolution 0.9857; proposal amount 0.9857; pass rate 0.9857; pass_5 0.9286; cost/success 49.567.
@@ -16,7 +16,7 @@
 
 ## Advanced evaluation (v2)
 
-- **Run ID / eval-set SHA:** baseline `E-swarm-20261117-ead9` / `ead9b4532961`; slice regression `E-slice_regression-20261117-ead9`.
+- **Run ID / eval-set SHA:** baseline `E-swarm-20261117-9ada` / `9adab6fed818`; slice regression `E-slice_regression-20261117-9ada`.
 - **Versions:** eval set v2 (28 items: v1 plus adversarial pack, × 5 seeds); metric spec 2.0; labels in `data/eval/labels_v2.json`.
 - **Threshold calibration:** A/A on seeds 66/77/88/99/110 had Δ=0.0000 for every reported metric in this deterministic MockLLM run. This does not model non-zero noise from a live LLM; production thresholds need repeated A/A runs and must sit outside the observed noise range.
 - **Blocking stability metric:** `pass_hat_5` ≥0.80. Baseline `pass_hat_5`=0.8929; the flaky regression is blocked by this floor.

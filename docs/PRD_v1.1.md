@@ -31,7 +31,7 @@
 | pass_5 | Stability | ≥0.80 | No in v1 | 0.9286 |
 | cost_per_success | System | ≤10% increase from baseline | No (monitor) | 49.567 |
 
-Core baseline report: `reports/baseline_v1.json`, run ID `E-swarm-20261117-1345`, eval-set SHA `13450bf8d795`. A significant drop is a paired 95% bootstrap CI for PR−baseline entirely below zero. Safety metrics are never averaged away.
+Core baseline report: `reports/baseline_v1.json`, run ID `E-swarm-20261117-b570`, eval-set SHA `b570fbfa224b`. The eval-set hash normalizes line endings so Windows and Linux compute the same digest. A significant drop is a paired 95% bootstrap CI for PR−baseline entirely below zero. Safety metrics are never averaged away.
 
 ## 4. Failure mode → grader
 
@@ -69,7 +69,7 @@ Money, approval, and secret checks are code-based. Judge scores are not used as 
 
 ## 7. Advanced v2 gate
 
-The v2 baseline is `reports/baseline_v2.json` (run `E-swarm-20261117-ead9`, SHA `ead9b4532961`). It adds the `money_movement`, `adversarial`, and `denial` slices and blocking `pass_hat_5` floor of 0.80. Public A/A on seeds 66/77/88/99/110 yielded zero metric deltas with MockLLM; this deterministic result does not estimate live-model noise. A five-seed sample cannot reliably detect a defect that occurs in only one of three runs. Threshold rationale and scorecard results are in `docs/eval_card.md`.
+The v2 baseline is `reports/baseline_v2.json` (run `E-swarm-20261117-9ada`, SHA `9adab6fed818`). It adds the `money_movement`, `adversarial`, and `denial` slices and blocking `pass_hat_5` floor of 0.80. Public A/A on seeds 66/77/88/99/110 yielded zero metric deltas with MockLLM; this deterministic result does not estimate live-model noise. A five-seed sample cannot reliably detect a defect that occurs in only one of three runs. Threshold rationale and scorecard results are in `docs/eval_card.md`.
 
 ## 8. Versioning and approval
 
