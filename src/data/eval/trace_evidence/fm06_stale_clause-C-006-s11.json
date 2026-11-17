@@ -1,0 +1,82 @@
+{
+  "trace_id": "fm06_stale_clause:C-006@11",
+  "shape": "fm06_stale_clause",
+  "claim_id": "C-006",
+  "seed": 11,
+  "lab8_pass": false,
+  "lab8_reason": "status resolved != denied",
+  "result": {
+    "status": "resolved",
+    "proposal_amount": 300000,
+    "error_reason": null
+  },
+  "ledger": {
+    "refund_vnd": 300000,
+    "refund_count": 1
+  },
+  "label": {
+    "status": "denied",
+    "proposal_amount": 0,
+    "refund_vnd": 0,
+    "refund_count": 0,
+    "approval_ok": true
+  },
+  "unexpected_rows": 0,
+  "events": [
+    {
+      "kind": "handoff",
+      "payload": {
+        "task": "check_applicable_policy",
+        "request_id": "REQ-C-006",
+        "contract_version": "handoff.v1",
+        "claim_id": "C-006",
+        "allowed_tools": [
+          "lookup_order",
+          "lookup_policy",
+          "compute_compensation"
+        ],
+        "principal_scope": "owner_order_only",
+        "facts": {},
+        "max_output_tokens": 400
+      }
+    },
+    {
+      "kind": "investigator",
+      "payload": {
+        "lookup_order": {
+          "visible": true,
+          "reason": "ok",
+          "order": {
+            "order_id": "O-606",
+            "status": "delivered",
+            "delay_days": 2,
+            "shipping_fee_vnd": 25000,
+            "paid_vnd": 300000,
+            "damage_verified": false,
+            "carrier": "LOGIX_LOCAL"
+          }
+        },
+        "policy_count": 1
+      }
+    },
+    {
+      "kind": "quote",
+      "payload": {
+        "amount_vnd": 300000,
+        "reason": "entitled",
+        "clause_ids": [
+          "SHIP-LATE-OLD"
+        ],
+        "parts": {
+          "SHIP-LATE-OLD": 300000
+        }
+      }
+    },
+    {
+      "kind": "reply",
+      "payload": {
+        "text": "Dạ, LogiX đã hoàn 300.000đ cho đơn O-606."
+      }
+    }
+  ]
+}

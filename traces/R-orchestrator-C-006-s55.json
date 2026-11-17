@@ -1,0 +1,12 @@
+{
+  "run_id": "R-orchestrator-C-006-s55",
+  "steps": 1,
+  "events": [
+    {
+      "kind": "shape",
+      "payload": {
+        "status": "not_implemented"
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "run_id": "R-swarm-C-005-s44",
+  "steps": 2,
+  "events": [
+    {
+      "kind": "handoff",
+      "payload": {
+        "contract_version": "handoff.v1",
+        "claim_id": "C-005",
+        "allowed_tools": [
+          "lookup_order",
+          "lookup_policy",
+          "compute_compensation"
+        ],
+        "facts": {},
+        "request_id": "REQ-C-005",
+        "max_output_tokens": 400,
+        "task": "check_applicable_policy",
+        "principal_scope": "owner_order_only"
+      }
+    },
+    {
+      "kind": "investigator",
+      "payload": {
+        "lookup_order": {
+          "visible": false,
+          "reason": "outside_principal_scope",
+          "order_id": "O-110"
+        },
+        "policy_count": 1
+      }
+    }
+  ]
+}

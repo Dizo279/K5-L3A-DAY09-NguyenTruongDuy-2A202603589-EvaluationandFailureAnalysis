@@ -57,3 +57,16 @@ def test_check_rejects_missing_tags(tmp_path, evalset_cli):
     result = evalset_cli("--check")
     assert result.returncode == 1, result.stdout + result.stderr
     assert "failure_modes empty" in result.stdout
+
+
+def test_check_rejects_missing_trace_provenance(evalset_cli, tmp_path):
+    evalset_cli("--build")
+    items_path = tmp_path / "data/eval/eval_set_v1.jsonl"
+    item = json.loads(items_path.read_text(encoding="utf-8"))
+    item["provenance"]["from_trace"] = ["data/eval/trace_evidence/missing.json"]
+    item["provenance"]["checked_by"] = "trace_review"
+    items_path.write_text(json.dumps(item) + "\n", encoding="utf-8")
+
+    result = evalset_cli("--check")
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "trace provenance not found" in result.stdout

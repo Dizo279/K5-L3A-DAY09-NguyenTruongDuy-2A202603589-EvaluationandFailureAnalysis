@@ -50,6 +50,22 @@ CLAIM_FAILURE_MODES: dict[str, list[str]] = {
     "C-014": ["FM-05", "FM-08"],
 }
 
+TRACE_EVIDENCE: dict[str, list[str]] = {
+    "C-002": ["data/eval/trace_evidence/seeded_regression-C-002-s55.json"],
+    "C-005": [
+        "data/eval/trace_evidence/fm01_leaky_trace-C-005-s11.json",
+        "data/eval/trace_evidence/swarm-C-005-s11.json",
+    ],
+    "C-006": ["data/eval/trace_evidence/fm06_stale_clause-C-006-s11.json"],
+    "C-007": ["data/eval/trace_evidence/fm02_ignore_denied-C-007-s11.json"],
+    "C-008": ["data/eval/trace_evidence/fm08_misreport-C-008-s11.json"],
+    "C-010": ["data/eval/trace_evidence/fm07_sibling_refund-C-010-s11.json"],
+    "C-014": [
+        "data/eval/trace_evidence/fm04_sum_parts-C-014-s11.json",
+        "data/eval/trace_evidence/fm05_pre_deducted-C-014-s11.json",
+    ],
+}
+
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
@@ -64,13 +80,14 @@ def build(source: Path = SOURCE) -> tuple[int, int]:
     items, labels = [], {}
     for n, claim in enumerate(claims, start=1):
         item_id = f"E-{n:03d}"
+        trace_refs = TRACE_EVIDENCE.get(claim["claim_id"])
         items.append({
             "item_id": item_id,
             "claim_id": claim["claim_id"],
             "failure_modes": CLAIM_FAILURE_MODES.get(claim["claim_id"], []),
             "provenance": {"source": "lab8_public", "matrix_id": claim.get("matrix_id"),
-                           "from_trace": None, "generator": None,
-                           "label_by": "lab8_matrix", "checked_by": None},
+                           "from_trace": trace_refs, "generator": "lab9.trace_case" if trace_refs else None,
+                           "label_by": "lab8_matrix", "checked_by": "trace_review" if trace_refs else None},
             "split": "regression",
             "eval_set_version": VERSION,
         })
@@ -127,6 +144,7 @@ def check(items_path: Path = ITEMS, labels_path: Path = LABELS) -> list[str]:
     problems: list[str] = []
     items = load_jsonl(items_path)
     labels = json.loads(labels_path.read_text(encoding="utf-8"))
+    trace_modes: set[str] = set()
     for item in items:
         missing = [k for k in REQUIRED if k not in item]
         if missing:
@@ -142,6 +160,22 @@ def check(items_path: Path = ITEMS, labels_path: Path = LABELS) -> list[str]:
         problems += [f"{item['item_id']}: {fm!r} is not a failure-mode code like FM-03"
                      for fm in item.get("failure_modes") or []
                      if not str(fm).startswith("UNMAPPED:") and not FM_CODE.fullmatch(str(fm))]
+        provenance = item.get("provenance") or {}
+        trace_refs = provenance.get("from_trace")
+        if isinstance(trace_refs, str):
+            trace_refs = [trace_refs]
+        if trace_refs:
+            if not isinstance(trace_refs, list):
+                problems.append(f"{item['item_id']}: provenance.from_trace must be a path or list of paths")
+                continue
+            trace_modes.update(item.get("failure_modes") or [])
+            if not provenance.get("checked_by"):
+                problems.append(f"{item['item_id']}: trace provenance missing checked_by")
+            for trace_ref in trace_refs:
+                if not isinstance(trace_ref, str) or not Path(trace_ref).is_file():
+                    problems.append(f"{item['item_id']}: trace provenance not found: {trace_ref}")
+    if trace_modes and len(trace_modes) < 5:
+        problems.append(f"only {len(trace_modes)} failure mode(s) have trace evidence; need >= 5")
     ids = [it.get("item_id") for it in items]
     problems += [f"{i}: duplicate item_id" for i in sorted({i for i in ids if ids.count(i) > 1})]
     cids = [it.get("claim_id") for it in items]

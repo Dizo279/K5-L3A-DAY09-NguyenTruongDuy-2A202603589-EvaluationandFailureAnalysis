@@ -75,8 +75,37 @@ class ReplyAmountCorrect(Evaluator[Any, Trial]):
         text = replies[-1] if replies else ""
         amounts = [int(raw.replace(".", "").replace(",", ""))
                    for raw in re.findall(r"(?<!\d)(\d[\d.,]*)\s*(?:đ|₫|d|VND|vnđ)", text, flags=re.IGNORECASE)]
-        ok = expected == 0 or expected in amounts
+        ok = all(amount == expected for amount in amounts)
         return EvaluationReason(value=ok, reason=None if ok else f"reply amounts={amounts}, ledger={expected}")
+
+
+@dataclass
+class ClaimResolutionCorrect(Evaluator[Any, Trial]):
+    """FM-02: the agent's final status (resolved/denied) must match the label.
+    Catches ignore_denied bug where the agent resolves a denied claim."""
+
+    def evaluate(self, ctx: EvaluatorContext[Any, Trial]) -> EvaluationReason:
+        expected_status = (ctx.expected_output or {}).get("status")
+        actual_status = (ctx.output.get("result") or {}).get("status")
+        if expected_status is None or actual_status is None:
+            return EvaluationReason(value=False, reason="missing expected or actual status")
+        ok = actual_status == expected_status
+        return EvaluationReason(value=ok, reason=None if ok else f"status {actual_status} != {expected_status}")
+
+
+@dataclass
+class ProposalAmountCorrect(Evaluator[Any, Trial]):
+    """FM-05/pre_deducted: the proposal_amount in the result must match the label.
+    Catches pre_deducted bug where the agent proposes 0 instead of the full amount."""
+
+    def evaluate(self, ctx: EvaluatorContext[Any, Trial]) -> EvaluationReason:
+        expected = (ctx.expected_output or {}).get("proposal_amount")
+        actual = (ctx.output.get("result") or {}).get("proposal_amount")
+        if expected is None or actual is None:
+            return EvaluationReason(value=False, reason="missing expected or actual proposal amount")
+        expected, actual = int(expected), int(actual)
+        ok = actual == expected
+        return EvaluationReason(value=ok, reason=None if ok else f"proposal {actual} != expected {expected}")
 
 
 @dataclass
@@ -95,5 +124,7 @@ GRADERS: dict[str, type[Evaluator]] = {
     "approval_bypass": ApprovalBypass,
     "refund_amount_correct": RefundAmountCorrect,
     "reply_amount_correct": ReplyAmountCorrect,
+    "claim_resolution_correct": ClaimResolutionCorrect,
+    "proposal_amount_correct": ProposalAmountCorrect,
     "db_fact_kept": DbFactKept,
 }

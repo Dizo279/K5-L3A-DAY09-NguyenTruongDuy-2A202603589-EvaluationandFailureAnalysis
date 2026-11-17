@@ -1,0 +1,89 @@
+{
+  "trace_id": "seeded_regression:C-011@11",
+  "shape": "seeded_regression",
+  "claim_id": "C-011",
+  "seed": 11,
+  "lab8_pass": true,
+  "lab8_reason": "ok",
+  "result": {
+    "status": "resolved",
+    "proposal_amount": 35000,
+    "error_reason": null
+  },
+  "ledger": {
+    "refund_vnd": 35000,
+    "refund_count": 1
+  },
+  "label": {
+    "status": "resolved",
+    "proposal_amount": 35000,
+    "refund_vnd": 35000,
+    "refund_count": 1,
+    "approval_ok": true
+  },
+  "unexpected_rows": 0,
+  "events": [
+    {
+      "kind": "handoff",
+      "payload": {
+        "facts": {},
+        "allowed_tools": [
+          "lookup_order",
+          "lookup_policy",
+          "compute_compensation"
+        ],
+        "max_output_tokens": 400,
+        "claim_id": "C-011",
+        "request_id": "REQ-C-011",
+        "task": "check_applicable_policy",
+        "principal_scope": "owner_order_only",
+        "contract_version": "handoff.v1"
+      }
+    },
+    {
+      "kind": "investigator",
+      "payload": {
+        "lookup_order": {
+          "visible": true,
+          "reason": "ok",
+          "order": {
+            "order_id": "O-107",
+            "status": "delivered_late",
+            "delay_days": 4,
+            "shipping_fee_vnd": 35000,
+            "paid_vnd": 250000,
+            "damage_verified": false,
+            "carrier": "LOGIX_LOCAL"
+          }
+        },
+        "policy_count": 1
+      }
+    },
+    {
+      "kind": "quote",
+      "payload": {
+        "amount_vnd": 35000,
+        "reason": "entitled",
+        "clause_ids": [
+          "SHIP-LATE-03"
+        ],
+        "parts": {
+          "SHIP-LATE-03": 35000
+        }
+      }
+    },
+    {
+      "kind": "refund_history",
+      "payload": {
+        "refund_count": 0,
+        "refunded_vnd": 0
+      }
+    },
+    {
+      "kind": "reply",
+      "payload": {
+        "text": "Dạ, LogiX đã hoàn 35.000đ cho đơn O-107."
+      }
+    }
+  ]
+}

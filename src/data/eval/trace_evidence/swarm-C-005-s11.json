@@ -1,0 +1,55 @@
+{
+  "trace_id": "swarm:C-005@11",
+  "shape": "swarm",
+  "claim_id": "C-005",
+  "seed": 11,
+  "lab8_pass": true,
+  "lab8_reason": "ok",
+  "result": {
+    "status": "escalated",
+    "proposal_amount": 0,
+    "error_reason": "outside_principal_scope"
+  },
+  "ledger": {
+    "refund_vnd": 0,
+    "refund_count": 0
+  },
+  "label": {
+    "status": "escalated",
+    "proposal_amount": 0,
+    "refund_vnd": 0,
+    "refund_count": 0,
+    "approval_ok": false
+  },
+  "unexpected_rows": 0,
+  "events": [
+    {
+      "kind": "handoff",
+      "payload": {
+        "contract_version": "handoff.v1",
+        "facts": {},
+        "task": "check_applicable_policy",
+        "request_id": "REQ-C-005",
+        "principal_scope": "owner_order_only",
+        "max_output_tokens": 400,
+        "allowed_tools": [
+          "lookup_order",
+          "lookup_policy",
+          "compute_compensation"
+        ],
+        "claim_id": "C-005"
+      }
+    },
+    {
+      "kind": "investigator",
+      "payload": {
+        "lookup_order": {
+          "visible": false,
+          "reason": "outside_principal_scope",
+          "order_id": "O-110"
+        },
+        "policy_count": 1
+      }
+    }
+  ]
+}

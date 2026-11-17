@@ -12,6 +12,7 @@ import argparse
 import json
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from lab8.console import utf8_stdio
 from lab8.db import load_json, load_jsonl
@@ -28,12 +29,33 @@ def investigate(shape: str, claim_id: str, seed: int) -> dict:
     return {"trial": trial, "label": labels[claim_id]}
 
 
+def evidence_record(shape: str, claim_id: str, seed: int, case: dict[str, Any]) -> dict[str, Any]:
+    trial, label = case["trial"], case["label"]
+    result = trial.get("result") or {}
+    summary_keys = ("status", "proposal_amount", "error_reason")
+    label_keys = ("status", "proposal_amount", "refund_vnd", "refund_count", "approval_ok")
+    return {
+        "trace_id": f"{shape}:{claim_id}@{seed}",
+        "shape": shape,
+        "claim_id": claim_id,
+        "seed": seed,
+        "lab8_pass": trial["lab8_pass"],
+        "lab8_reason": trial["lab8_reason"],
+        "result": {key: result[key] for key in summary_keys if key in result},
+        "ledger": {key: trial["snapshot"].get(key) for key in ("refund_vnd", "refund_count")},
+        "label": {key: label.get(key) for key in label_keys},
+        "unexpected_rows": trial["unexpected_rows"],
+        "events": trial["events"],
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     utf8_stdio()
     ap = argparse.ArgumentParser(prog="lab9.trace_case")
     ap.add_argument("--shape", required=True)
     ap.add_argument("--claim", required=True)
     ap.add_argument("--seed", type=int, default=11)
+    ap.add_argument("--out", type=Path, help="write a durable JSON copy of the trace evidence")
     args = ap.parse_args(argv)
     case = investigate(args.shape, args.claim, args.seed)
     t, label = case["trial"], case["label"]
@@ -47,6 +69,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  {k:<14} ledger={t['snapshot'].get(k)!s:<8} label={label.get(k)}{mark}")
     print(f"  status         result={t['result'].get('status')!s:<8} label={label.get('status')}")
     print(f"  unexpected ledger rows: {t['unexpected_rows']}")
+    if args.out:
+        evidence = evidence_record(args.shape, args.claim, args.seed, case)
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(json.dumps(evidence, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"wrote {args.out}")
     return 0
 
 

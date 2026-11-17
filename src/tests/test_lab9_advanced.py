@@ -53,6 +53,22 @@ def test_integrity_flags_nan_and_dropped_rows():
     assert gate.integrity_check(dropped, base, SPEC)
 
 
+def test_integrity_flags_duplicates_missing_metrics_and_evaluator_failures():
+    from lab9 import gate
+
+    base = _report(copy.deepcopy(ROWS), {"pass_rate": 1.0})
+    duplicate = _report(copy.deepcopy(ROWS) + [copy.deepcopy(ROWS[0])], {"pass_rate": 1.0})
+    assert any("duplicate" in p for p in gate.integrity_check(duplicate, base, SPEC))
+
+    missing = _report(copy.deepcopy(ROWS), {"pass_rate": 1.0})
+    missing["rows"][0].pop("pass_rate")
+    assert any("row 0 metric pass_rate is None" in p for p in gate.integrity_check(missing, base, SPEC))
+
+    failed = _report(copy.deepcopy(ROWS), {"pass_rate": 1.0})
+    failed["evaluator_failures"] = ["E-001@1:grader:crashed"]
+    assert any("evaluator_failures" in p for p in gate.integrity_check(failed, base, SPEC))
+
+
 def test_integrity_flags_loosened_spec():
     from lab9 import gate
 
@@ -74,3 +90,20 @@ def test_slice_check_blocks_a_slice_below_floor():
     spec = dict(SPEC, slices=[{"name": "denial", "metric": "pass_rate", "min": 0.9, "blocking": True}])
     blocked, _ = gate.slice_check(_report(rows, {"pass_rate": 0.75}), base, spec)
     assert blocked == ["slice:denial/pass_rate"]
+
+
+def test_zero_touching_interval_blocks_only_when_mean_delta_is_negative():
+    from lab9 import gate
+
+    base = _report(copy.deepcopy(ROWS), {"pass_rate": 1.0})
+    spec = dict(SPEC, slices=[{"name": "denial", "metric": "pass_rate", "min": 0.5,
+                               "no_significant_drop": True, "blocking": True}])
+    unchanged, _ = gate.slice_check(_report(copy.deepcopy(ROWS), {"pass_rate": 1.0}), base, spec)
+    assert unchanged == []
+
+    regressed_rows = copy.deepcopy(ROWS)
+    for row in regressed_rows:
+        if "denial" in row["slices"]:
+            row["pass_rate"] = False
+    regressed, _ = gate.slice_check(_report(regressed_rows, {"pass_rate": 0.75}), base, spec)
+    assert regressed == ["slice:denial/pass_rate"]

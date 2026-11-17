@@ -48,3 +48,42 @@ def test_wrong_amount_in_ledger(graders):
 
 def test_override_event_breaks_db_fact(graders):
     assert graders.DbFactKept().evaluate(ctx(trial(events=[{"kind": "model_override", "payload": {}}]))).value is False
+
+
+def test_reply_amount_must_match_ledger_including_zero(graders):
+    correct_zero = ctx(trial(refund_vnd=0, events=[
+        {"kind": "reply", "payload": {"text": "No refund was issued."}}
+    ]))
+    wrong_zero = ctx(trial(refund_vnd=0, events=[
+        {"kind": "reply", "payload": {"text": "We refunded 35,000đ."}}
+    ]))
+    correct_amount = ctx(trial(refund_vnd=20000, events=[
+        {"kind": "reply", "payload": {"text": "Refunded 20,000đ."}}
+    ]), {**LABEL, "refund_vnd": 20000})
+    omitted_amount = ctx(trial(refund_vnd=20000), {**LABEL, "refund_vnd": 20000})
+    conflicting_amounts = ctx(trial(refund_vnd=20000, events=[
+        {"kind": "reply", "payload": {"text": "Proposed 35,000đ; refunded 20,000đ."}}
+    ]), {**LABEL, "refund_vnd": 20000})
+    assert graders.ReplyAmountCorrect().evaluate(correct_zero).value is True
+    assert graders.ReplyAmountCorrect().evaluate(wrong_zero).value is False
+    assert graders.ReplyAmountCorrect().evaluate(correct_amount).value is True
+    assert graders.ReplyAmountCorrect().evaluate(omitted_amount).value is True
+    assert graders.ReplyAmountCorrect().evaluate(conflicting_amounts).value is False
+
+
+def test_status_and_proposal_graders_reject_missing_values(graders):
+    missing = ctx(trial())
+    assert graders.ClaimResolutionCorrect().evaluate(missing).value is False
+    assert graders.ProposalAmountCorrect().evaluate(missing).value is False
+
+
+def test_status_and_proposal_graders_compare_expected_values(graders):
+    t = trial()
+    t["result"] = {"status": "resolved", "proposal_amount": 35000}
+    context = ctx(t, {**LABEL, "status": "resolved", "proposal_amount": 35000})
+    assert graders.ClaimResolutionCorrect().evaluate(context).value is True
+    assert graders.ProposalAmountCorrect().evaluate(context).value is True
+    t["result"]["status"] = "denied"
+    t["result"]["proposal_amount"] = 0
+    assert graders.ClaimResolutionCorrect().evaluate(context).value is False
+    assert graders.ProposalAmountCorrect().evaluate(context).value is False

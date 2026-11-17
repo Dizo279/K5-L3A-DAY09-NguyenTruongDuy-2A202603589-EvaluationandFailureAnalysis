@@ -1,0 +1,82 @@
+{
+  "trace_id": "fm02_ignore_denied:C-007@11",
+  "shape": "fm02_ignore_denied",
+  "claim_id": "C-007",
+  "seed": 11,
+  "lab8_pass": false,
+  "lab8_reason": "status resolved != denied",
+  "result": {
+    "status": "resolved",
+    "proposal_amount": 35000,
+    "error_reason": null
+  },
+  "ledger": {
+    "refund_vnd": 0,
+    "refund_count": 0
+  },
+  "label": {
+    "status": "denied",
+    "proposal_amount": 35000,
+    "refund_vnd": 0,
+    "refund_count": 0,
+    "approval_ok": false
+  },
+  "unexpected_rows": 0,
+  "events": [
+    {
+      "kind": "handoff",
+      "payload": {
+        "task": "check_applicable_policy",
+        "request_id": "REQ-C-007",
+        "contract_version": "handoff.v1",
+        "claim_id": "C-007",
+        "allowed_tools": [
+          "lookup_order",
+          "lookup_policy",
+          "compute_compensation"
+        ],
+        "principal_scope": "owner_order_only",
+        "facts": {},
+        "max_output_tokens": 400
+      }
+    },
+    {
+      "kind": "investigator",
+      "payload": {
+        "lookup_order": {
+          "visible": true,
+          "reason": "ok",
+          "order": {
+            "order_id": "O-909",
+            "status": "delivered_late",
+            "delay_days": 4,
+            "shipping_fee_vnd": 35000,
+            "paid_vnd": 250000,
+            "damage_verified": false,
+            "carrier": "LOGIX_LOCAL"
+          }
+        },
+        "policy_count": 1
+      }
+    },
+    {
+      "kind": "quote",
+      "payload": {
+        "amount_vnd": 35000,
+        "reason": "entitled",
+        "clause_ids": [
+          "SHIP-LATE-03"
+        ],
+        "parts": {
+          "SHIP-LATE-03": 35000
+        }
+      }
+    },
+    {
+      "kind": "reply",
+      "payload": {
+        "text": "Dạ, LogiX đã hoàn 35.000đ cho đơn O-909."
+      }
+    }
+  ]
+}

@@ -10,18 +10,20 @@ python -m lab9.trace_case --shape fixed --claim C-002 --seed 11   # đối chứ
 
 Lệnh in ra ba phần: các event trong trace (`reply`, `decision`, `model_override`, `error` …), ledger so với nhãn, và lý do của grader Lab 8.
 
-## Mẫu điền (mỗi nhóm 1 case, lấy từ trial đang fail trong report)
+## Case đã tái hiện: seeded_regression C-002@55
 
 | Trường | Nội dung |
 |---|---|
-| Trial | `<shape> <claim>@<seed>`, run ID trong report |
-| Triệu chứng | Grader nào fail; reply nói gì so với ledger ghi gì |
-| Bước sai đầu tiên | Số thứ tự event + kind + trích payload (≤1 dòng) |
-| Vì sao là bước *đầu tiên* | Các bước trước đó đúng ra sao (dẫn số event) |
-| Failure mode | Mã FM-xx trong `docs/failure_taxonomy.md` |
-| Đối chứng | Cùng claim@seed trên shape `fixed`: bước đó khác thế nào |
-| Regression test | Tên test + grader/assert nào bắt được; đã thấy fail trên variant lỗi và pass trên `fixed` chưa |
-| Chưa chắc chắn | Điều trace không chứng minh được |
+| Trial | `seeded_regression C-002@55`; bằng chứng JSON: `src/data/eval/trace_evidence/seeded_regression-C-002-s55.json` |
+| Triệu chứng | Grader báo `status resolved != denied`; ledger hoàn 20.000đ, nhãn kỳ vọng 0đ/denied. Reply cũng thông báo đã hoàn 20.000đ. |
+| Bước sai đầu tiên | Event 3 `model_override`: model ghi `delay_days=5`. |
+| Vì sao là bước *đầu tiên* | Event 2 lookup DB đúng: order O-202 giao trễ 2 ngày. Event 3 thay dữ kiện đó; event 4 quote và event 6 reply tiếp tục dựa trên số ngày sai. |
+| Failure mode | FM-03 `ticket_trust`. |
+| Đối chứng | Cùng claim/seed với shape `fixed`: không có `model_override`, status và ledger khớp nhãn denied/0đ. |
+| Regression test | `tests/test_lab9_trace_case.py::test_ticket_trust_trace_is_regression_and_fixed_control_passes`; kiểm tra event override, status và ledger ở variant lỗi lẫn fixed. |
+| Chưa chắc chắn | Case xác nhận đường lỗi này trên MockLLM/seed 55; không ước lượng tần suất trên model hoặc traffic thật. |
+
+Tạo lại bằng `python -m lab9.trace_case --shape seeded_regression --claim C-002 --seed 55 --out data/eval/trace_evidence/seeded_regression-C-002-s55.json`.
 
 ## Quy tắc
 

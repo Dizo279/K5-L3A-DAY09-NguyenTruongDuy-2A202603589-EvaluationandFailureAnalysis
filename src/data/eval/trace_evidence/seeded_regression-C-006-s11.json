@@ -1,0 +1,85 @@
+{
+  "trace_id": "seeded_regression:C-006@11",
+  "shape": "seeded_regression",
+  "claim_id": "C-006",
+  "seed": 11,
+  "lab8_pass": true,
+  "lab8_reason": "ok",
+  "result": {
+    "status": "denied",
+    "proposal_amount": 0,
+    "error_reason": "no_entitlement"
+  },
+  "ledger": {
+    "refund_vnd": 0,
+    "refund_count": 0
+  },
+  "label": {
+    "status": "denied",
+    "proposal_amount": 0,
+    "refund_vnd": 0,
+    "refund_count": 0,
+    "approval_ok": true
+  },
+  "unexpected_rows": 0,
+  "events": [
+    {
+      "kind": "handoff",
+      "payload": {
+        "task": "check_applicable_policy",
+        "request_id": "REQ-C-006",
+        "principal_scope": "owner_order_only",
+        "max_output_tokens": 400,
+        "facts": {},
+        "allowed_tools": [
+          "lookup_order",
+          "lookup_policy",
+          "compute_compensation"
+        ],
+        "contract_version": "handoff.v1",
+        "claim_id": "C-006"
+      }
+    },
+    {
+      "kind": "investigator",
+      "payload": {
+        "lookup_order": {
+          "visible": true,
+          "reason": "ok",
+          "order": {
+            "order_id": "O-606",
+            "status": "delivered",
+            "delay_days": 2,
+            "shipping_fee_vnd": 25000,
+            "paid_vnd": 300000,
+            "damage_verified": false,
+            "carrier": "LOGIX_LOCAL"
+          }
+        },
+        "policy_count": 1
+      }
+    },
+    {
+      "kind": "quote",
+      "payload": {
+        "amount_vnd": 0,
+        "reason": "no_entitlement",
+        "clause_ids": [],
+        "parts": {}
+      }
+    },
+    {
+      "kind": "refund_history",
+      "payload": {
+        "refund_count": 0,
+        "refunded_vnd": 0
+      }
+    },
+    {
+      "kind": "reply",
+      "payload": {
+        "text": "Dạ, đơn O-606 chưa đủ điều kiện hoàn theo chính sách hiện hành."
+      }
+    }
+  ]
+}
